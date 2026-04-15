@@ -17,7 +17,7 @@ import aiohttp
 import certifi
 from const import (
     SamsungConfig,
-    SMARTTHINGS_WORKER_AUTHORIZE,
+    get_smartthings_worker_authorize_url,
 )
 from samsungtvws import SamsungTVWS
 from ucapi import IntegrationSetupError, RequestUserInput, SetupError
@@ -431,7 +431,9 @@ class SamsungSetupFlow(BaseSetupFlow[SamsungConfig]):
             ssl_context = ssl.create_default_context(cafile=certifi.where())
             connector = aiohttp.TCPConnector(ssl=ssl_context)
             async with aiohttp.ClientSession(connector=connector) as session:
-                async with session.get(SMARTTHINGS_WORKER_AUTHORIZE) as response:
+                async with session.get(
+                    get_smartthings_worker_authorize_url()
+                ) as response:
                     if response.status != 200:
                         _LOG.error(
                             "Failed to get auth URL from worker: %d", response.status

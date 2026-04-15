@@ -1,5 +1,7 @@
 """Samsung TV integration constants."""
 
+import os
+
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 
@@ -69,12 +71,32 @@ SAMSUNG_STATE_MAPPING = {
 
 """SmartThings OAuth constants."""
 
-# Coordinator worker — routes new users to a sub-worker with available capacity.
-# Sub-workers (smartthings1, smartthings2, ...) each have a separate SmartThings
-# app registration with its own 20-user limit. The coordinator picks the least-full
-# one and returns its base URL so the client can store it for all future calls.
-SMARTTHINGS_COORDINATOR_URL = "https://smartthings.jackattack51.workers.dev"
-SMARTTHINGS_WORKER_AUTHORIZE = f"{SMARTTHINGS_COORDINATOR_URL}/authorize"
+# Default coordinator worker — routes new users to a sub-worker with available capacity.
+# Can be overridden in development via UC_SMARTTHINGS_COORDINATOR_URL.
+DEFAULT_SMARTTHINGS_COORDINATOR_URL = "https://smartthings.jackattack51.workers.dev"
+
+
+def get_smartthings_coordinator_url() -> str:
+    """Return the SmartThings coordinator worker base URL.
+
+    Allows a development-only override via environment variable without
+    affecting normal users.
+    """
+    return os.getenv(
+        "UC_SMARTTHINGS_COORDINATOR_URL",
+        DEFAULT_SMARTTHINGS_COORDINATOR_URL,
+    ).rstrip("/")
+
+
+def get_smartthings_worker_authorize_url() -> str:
+    """Return the SmartThings authorize endpoint URL."""
+    return f"{get_smartthings_coordinator_url()}/authorize"
+
+
+def get_smartthings_worker_refresh_url() -> str:
+    """Return the SmartThings refresh endpoint URL."""
+    return f"{get_smartthings_coordinator_url()}/refresh"
+
 
 # Max users per sub-worker SmartThings app (Samsung-imposed limit for non-certified apps)
 SMARTTHINGS_WORKER_CAPACITY = 20

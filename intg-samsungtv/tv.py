@@ -16,7 +16,7 @@ from typing import Any, cast
 import aiohttp
 import certifi
 import wakeonlan
-from const import SamsungConfig
+from const import SamsungConfig, get_smartthings_worker_refresh_url
 from pysmartthings import SmartThings
 from samsungtvws import SamsungTVWS
 from samsungtvws.async_remote import SamsungTVWSAsyncRemote
@@ -389,7 +389,11 @@ class SamsungTv(ExternalClientDevice):
                     # Use the worker URL assigned during setup so each user always
                     # hits their own sub-worker (which holds the matching client credentials).
                     # Fall back to the coordinator for configs created before multi-worker support.
-                    f"{self._device_config.smartthings_worker_url or 'https://smartthings.jackattack51.workers.dev'}/refresh",
+                    (
+                        f"{self._device_config.smartthings_worker_url.rstrip('/')}/refresh"
+                        if self._device_config.smartthings_worker_url
+                        else get_smartthings_worker_refresh_url()
+                    ),
                     json=data,
                     headers={"Content-Type": "application/json"},
                 ) as response:
