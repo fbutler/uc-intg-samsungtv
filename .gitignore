@@ -99,6 +99,9 @@ ENV/
 # Visual Studio Code
 .vscode/
 
+# Local dev tools
+.wrangler/
+
 .DS_Store
 
 config.json
